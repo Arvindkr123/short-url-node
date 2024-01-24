@@ -6,8 +6,8 @@ import { getShortIdUrlController } from "./controllers/url.controllers.js";
 import path from "path";
 import cookieParser from "cookie-parser";
 import {
-  checkAuth,
-  restrictTOUserLoginOnly,
+  checkForAuthentication,
+  restrictTo,
 } from "./middleware/auth.middleware.js";
 
 const app = express();
@@ -18,8 +18,10 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./project-2/views"));
 
-app.use("/", checkAuth, staticRouter);
-app.use("/url", restrictTOUserLoginOnly, urlRouter);
+app.use(checkForAuthentication);
+
+app.use("/", staticRouter);
+app.use("/url", restrictTo(["NORMAL", "ADMIN"]), urlRouter);
 app.get("/:id", getShortIdUrlController);
 app.use("/user", userRoutes);
 
